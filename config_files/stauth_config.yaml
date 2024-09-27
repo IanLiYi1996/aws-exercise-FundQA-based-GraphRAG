@@ -1,0 +1,15 @@
+credentials:
+  usernames:
+    admin:
+      email: admin@admin.com
+      failed_login_attempts: 0 # Will be managed automatically
+      logged_in: False # Will be managed automatically
+      name: admin
+      password: $2b$12$/V2QvmqZSHEcNi/GBAFYn.4XdULxnd6W2Jb7D7Rpgc/bCVjdfgZZu # Set the password following instructions in README
+cookie:
+  expiry_days: 2
+  key: some_signature_key # Must be string
+  name: some_cookie_name
+pre-authorized:
+  emails:
+    - admin@admin.com
