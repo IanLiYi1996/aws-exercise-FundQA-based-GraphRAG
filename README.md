@@ -12,11 +12,50 @@ A  demo using Amazon Bedrock, Amazon OpenSearch, Amazon Neptune Graph Database w
 
 
 
+[Demo展示] <video src='./assets/demo.mp4' controls width=180/>
+
+
 [项目结构]
+```
+aws-exercise-FundQA-based-GraphRA
+├── Dockerfile 项目打包镜像脚本
+├── README.md
+├── assets 存放相关资源
+├── config_files 存放项目配置信息
+│   ├── aws_config.yaml
+│   ├── llm_prompt.py
+│   └── stauth_config.yaml
+├── core 核心流程实现
+│   └── chat_service.py
+├── data_example 示例数据
+│   ├── edge.csv
+│   ├── vertex.csv
+│   └── vertex2.csv
+├── database AWS数据服务
+│   ├── neptune.py
+│   └── opensearch.py
+├── llm AWS Bedrock调用
+│   ├── embedding.py
+│   └── llm.py
+├── main.py 项目入口
+├── notebooks 相关notebook文件
+│   ├── Titan-V2-Embeddings.ipynb
+│   ├── bedrock_invoke.ipynb
+│   ├── graph_rag.ipynb
+│   ├── inser_data_in_neptune.ipynb
+│   ├── insert_embeddding_into_opensearch.ipynb
+│   ├── llama_index.ipynb
+│   └── neptune-connect.ipynb
+├── pages chat页面实现
+│   └── chat.py
+├── requirements.txt 相关依赖
+└── utils 工具资源
+    ├── llm.py
+    ├── logging.py
+    └── pages_config.py
+```
 
 
-
-[Demo展示]
 
 
 
