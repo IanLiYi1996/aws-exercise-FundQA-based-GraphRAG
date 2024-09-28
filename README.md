@@ -12,7 +12,9 @@ A  demo using Amazon Bedrock, Amazon OpenSearch, Amazon Neptune Graph Database w
 
 
 
-[Demo展示] <video src='./assets/demo.mp4' controls width=180/>
+[Demo展示] 
+
+<video src='./assets/demo.mp4' controls width=180/>
 
 
 [项目结构]
