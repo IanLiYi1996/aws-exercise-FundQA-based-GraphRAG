@@ -28,6 +28,9 @@ A  demo using Amazon Bedrock, Amazon OpenSearch, Amazon Neptune Graph Database w
 - Amazon SageMaker
 - AWS Identity and Access Management (IAM)
 
+### Demo展示 
+https://github.com/user-attachments/assets/97a4c897-419b-4bcf-b91b-3fdd302518b5
+
 ### 实现功能
 基于Amazon 云服务组件的基金检索生成问答系统
 - 通过自然语言输入，调用Amazon Bedrock的Llama模型，将自然语言文本转换为OpenCypher完成查询Amazon Neptune图数据库，并返回结果。
@@ -39,9 +42,6 @@ A  demo using Amazon Bedrock, Amazon OpenSearch, Amazon Neptune Graph Database w
 - 提供streamlit前端页面，方便用户交互
 - 实现全部基于Amazon 云服务组件，无需本地部署
 
-### Demo展示 
-
-https://github.com/user-attachments/assets/97a4c897-419b-4bcf-b91b-3fdd302518b5
 
 ### 项目结构
 ```
