@@ -14,10 +14,7 @@ A  demo using Amazon Bedrock, Amazon OpenSearch, Amazon Neptune Graph Database w
 
 ### Demo展示 
 
-<video src='./assets/demo.mp4' controls width="180"></video>
-
-<br/>  <!-- 添加换行符以确保后续内容显示 -->
-
+https://github.com/user-attachments/assets/97a4c897-419b-4bcf-b91b-3fdd302518b5
 
 ### 项目结构
 ```
