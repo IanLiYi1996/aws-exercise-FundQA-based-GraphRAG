@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-
+from core.chat_service import ChatService
 from utils.pages_config import make_sidebar
 
 from dotenv import load_dotenv
@@ -27,7 +27,7 @@ def main():
     st.set_page_config(page_title="Demo", layout="wide")
     make_sidebar()
 
-    st.subheader('Neptune Chat Bot')
+    st.subheader('FundQA ChatBot Example')
 
     with st.sidebar:
         st.title('Setting')
@@ -48,8 +48,10 @@ def main():
                 st.session_state.messages.append(
                     {"role": "user", "content": search_box, "type": "text"})
                 st.write(search_box)
+            # 调用 ChatService
+            chat_service = ChatService()
+            response = chat_service.execute_chat(search_box)
             with st.chat_message("assistant"):
-                response = "66666"
                 st.write(response)
                 st.session_state.messages.append(
                     {"role": "assistant", "content": response, "type": "text"})

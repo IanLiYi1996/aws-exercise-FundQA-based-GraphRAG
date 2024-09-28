@@ -4,7 +4,7 @@ import streamlit as st
 from utils.pages_config import get_authenticator
 
 st.set_page_config(
-    page_title="Snowball ChatBot",
+    page_title="FundQA-by-GraphRag ChatBot",
     page_icon="👋",
 )
 
@@ -20,3 +20,6 @@ elif st.session_state['authentication_status'] is False:
     st.error('Username/password is incorrect')
 elif st.session_state['authentication_status'] is None:
     st.warning('Please enter your username and password')
+
+
+## test code:streamlit run main.py --server.enableStaticServing false --logger.level info —-client.toobarMode viewer --client.showErrorDetails false --browser.gatherUsageStats false —-theme.base light

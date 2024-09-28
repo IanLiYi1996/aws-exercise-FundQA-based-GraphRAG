@@ -1,0 +1,10 @@
+opensearch_info:
+  username: admin
+  password: Test_admin_2024
+  host: search-exercise-y6drxqainjxci3jwnxkvedmhue.us-east-1.es.amazonaws.com
+  port: 443
+  embedding_dimension: 256
+neptune_info:
+  neptune_endpoint: db-neptune-1.cluster-ro-c54gq640s2vk.us-east-1.neptune.amazonaws.com
+bedrock_info:
+  llama_model_id: meta.llama3-70b-instruct-v1:0

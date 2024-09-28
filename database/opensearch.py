@@ -1,201 +1,83 @@
 import boto3
 from opensearchpy import OpenSearch
 from opensearchpy.helpers import bulk
-from utils.llm import create_vector_embedding
 from utils.logging import getLogger
 
 logger = getLogger()
 
+class OpenSearchInitializer:
+    def __init__(self, opensearch_info):
+        self.opensearch_info = opensearch_info
+        self.client = self._create_client()
 
+    def _create_client(self):
+        auth = (self.opensearch_info["username"], self.opensearch_info["password"])
+        host = self.opensearch_info["host"]
+        port = self.opensearch_info["port"]
 
-def get_opensearch_cluster_client(domain, host, port, opensearch_user, opensearch_password, region_name):
-
-    auth = (opensearch_user, opensearch_password)
-    if len(host) == 0:
-        host = get_opensearch_endpoint(domain, region_name)
-
-    # Create the client with SSL/TLS enabled, but hostname verification disabled.
-    opensearch_client = OpenSearch(
-        hosts=[{'host': host, 'port': port}],
-        http_compress=True,  # enables gzip compression for request bodies
-        http_auth=auth,
-        use_ssl=True,
-        verify_certs=False,
-        ssl_assert_hostname=False,
-        ssl_show_warn=False
-    )
-    return opensearch_client
-
-
-def get_opensearch_endpoint(domain, region):
-    client = boto3.client('es', region_name=region)
-    response = client.describe_elasticsearch_domain(
-        DomainName=domain
-    )
-    return response['DomainStatus']['Endpoint']
-
-
-def put_bulk_in_opensearch(list, client):
- 
-    logger.info(f"Putting {len(list)} documents in OpenSearch")
-    success, failed = bulk(client, list)
-    return success, failed
-
-
-def check_opensearch_index(opensearch_client, index_name):
-    return opensearch_client.indices.exists(index=index_name)
-
-
-def create_index(opensearch_client, index_name):
-    """
-    Create index
-    :param opensearch_client:
-    :param index_name:
-    :return:
-    """
-    settings = {
-        "settings": {
-            "index": {
-                "knn": True,
-                "knn.space_type": "cosinesimil"
-            }
-        }
-    }
-    response = opensearch_client.indices.create(index=index_name, body=settings)
-    return bool(response['acknowledged'])
-
-
-def create_index_mapping(opensearch_client, index_name, dimension):
-    """
-    Create index mapping
-    :param opensearch_client:
-    :param index_name:
-    :param dimension:
-    :return:
-    """
-    response = opensearch_client.indices.put_mapping(
-        index=index_name,
-        body={
-            "properties": {
-                "vector_field": {
-                    "type": "knn_vector",
-                    "dimension": dimension
-                },
-                "text": {
-                    "type": "keyword"
-                },
-                "profile": {
-                    "type": "keyword"
-                }
-            }
-        }
-    )
-    return bool(response['acknowledged'])
-
-
-def delete_opensearch_index(opensearch_client, index_name):
-    logger.info(f"Trying to delete index {index_name}")
-    try:
-        response = opensearch_client.indices.delete(index=index_name)
-        logger.info(f"Index {index_name} deleted")
-        return response['acknowledged']
-    except Exception as e:
-        logger.info(f"Index {index_name} not found, nothing to delete")
-        return True
-
-
-def retrieve_results_from_opensearch(index_name, region_name, domain, opensearch_user, opensearch_password,
-                                     query_embedding, top_k=3, host='', port=443, profile_name=None):
-    opensearch_client = get_opensearch_cluster_client(domain, host, port, opensearch_user, opensearch_password, region_name)
-    search_query = {
-        "size": top_k,  # Adjust the size as needed to retrieve more or fewer results
-        "query": {
-            "bool": {
-                "filter": {
-                    "match_phrase": {
-                        "profile": profile_name
-                    }
-                },
-                "must": [
-                    {
-                        "knn": {
-                            "vector_field": {  # Make sure 'vector_field' is the name of your vector field in OpenSearch
-                                "vector": query_embedding,
-                                "k": top_k  # Adjust k as needed to retrieve more or fewer nearest neighbors
-                            }
-                        }
-                    }
-                ]
-            }
-
-        }
-    }
-
-    # Execute the search query
-    response = opensearch_client.search(
-        body=search_query,
-        index=index_name
-    )
-
-    return response['hits']['hits']
-
-
-def opensearch_index_init(opensearch_info):
-    """
-    OpenSearch index init
-    :return:
-    """
-
-    opensearch_info = {}
-    try:
-        auth = (opensearch_info["username"], opensearch_info["password"])
-        host = opensearch_info["host"]
-        port = opensearch_info["port"]
-        # Create the client with SSL/TLS enabled, but hostname verification disabled.
-        opensearch_client = OpenSearch(
+        return OpenSearch(
             hosts=[{'host': host, 'port': port}],
-            http_compress=True,  # enables gzip compression for request bodies
+            http_compress=True,
             http_auth=auth,
             use_ssl=True,
             verify_certs=False,
             ssl_assert_hostname=False,
             ssl_show_warn=False
         )
-        index_name =  "text_neptune"
-        dimension = opensearch_info['embedding_dimension']
-        index_create_success = True
-        exists = check_opensearch_index(opensearch_client, index_name)
-        if not exists:
+
+    def initialize_index(self):
+        index_name = "text_neptune"
+        dimension = self.opensearch_info['embedding_dimension']
+        
+        if not self._check_index_exists(index_name):
             logger.info("Creating OpenSearch index")
-            success = create_index(opensearch_client, index_name)
-            if success:
-                success = create_index_mapping(opensearch_client, index_name, dimension)
-                logger.info(f"OpenSearch Index mapping created")
-            else:
-                index_create_success = False
-        return index_create_success
-    except Exception as e:
-        logger.error("create index error")
-        logger.error(e)
+            if self._create_index(index_name) and self._create_index_mapping(index_name, dimension):
+                logger.info("OpenSearch Index mapping created")
+                return True
         return False
 
+    def _check_index_exists(self, index_name):
+        return self.client.indices.exists(index=index_name)
 
+    def _create_index(self, index_name):
+        settings = {
+            "settings": {
+                "index": {
+                    "knn": True,
+                    "knn.space_type": "cosinesimil"
+                }
+            }
+        }
+        response = self.client.indices.create(index=index_name, body=settings)
+        return bool(response['acknowledged'])
 
-def put_bulk_in_opensearch(list, client):
-    logger.info(f"Putting {len(list)} documents in OpenSearch")
-    success, failed = bulk(client, list)
-    return success, failed
+    def _create_index_mapping(self, index_name, dimension):
+        response = self.client.indices.put_mapping(
+            index=index_name,
+            body={
+                "properties": {
+                    "vector_field": {
+                        "type": "knn_vector",
+                        "dimension": dimension
+                    },
+                    "text": {
+                        "type": "keyword"
+                    },
+                    "profile": {
+                        "type": "keyword"
+                    }
+                }
+            }
+        )
+        return bool(response['acknowledged'])
+
 
 class OpenSearchDao:
-
     def __init__(self, host, port, opensearch_user, opensearch_password):
-        auth = (opensearch_user, opensearch_password)
-
-        # Create the client with SSL/TLS enabled, but hostname verification disabled.
-        self.opensearch_client = OpenSearch(
+        self.client = OpenSearch(
             hosts=[{'host': host, 'port': port}],
-            http_compress=True,  # enables gzip compression for request bodies
-            http_auth=auth,
+            http_compress=True,
+            http_auth=(opensearch_user, opensearch_password),
             use_ssl=True,
             verify_certs=False,
             ssl_assert_hostname=False,
@@ -203,46 +85,20 @@ class OpenSearchDao:
         )
 
     def retrieve_samples(self, index_name, profile_name):
-        # search all docs in the index filtered by profile_name
         search_query = {
-            "sort": [
-                {
-                    "_score": {
-                        "order": "desc"
-                    }
-                }
-            ],
-            "_source": {
-                "includes": ["text", "answer"]
-            },
+            "sort": [{"_score": {"order": "desc"}}],
+            "_source": {"includes": ["text", "answer"]},
             "size": 5000,
             "query": {
                 "bool": {
-                    "must": [],
                     "filter": [
-                        {
-                            "match_all": {}
-                        },
-                        {
-                            "match_phrase": {
-                                "profile": profile_name
-                            }
-                        }
-                    ],
-                    "should": [],
-                    "must_not": []
+                        {"match_phrase": {"profile": profile_name}}
+                    ]
                 }
             }
         }
-
-        # Execute the search query
-        response = self.opensearch_client.search(
-            body=search_query,
-            index=index_name
-        )
-
+        response = self.client.search(body=search_query, index=index_name)
         return response['hits']['hits']
-
 
     def add_sample(self, index_name, profile_name, text, answer, embedding):
         record = {
@@ -252,50 +108,64 @@ class OpenSearchDao:
             'profile': profile_name,
             'vector_field': embedding
         }
-
-        success, failed = put_bulk_in_opensearch([record], self.opensearch_client)
+        success, failed = bulk(self.client, [record])
         return success == 1
 
-
-
-    def delete_sample(self, index_name, profile_name, doc_id):
-        return self.opensearch_client.delete(index=index_name, id=doc_id)
-
-    def search_sample(self, profile_name, top_k, index_name, query):
-        records_with_embedding = create_vector_embedding(query, index_name=index_name)
-        return self.search_sample_with_embedding(profile_name, top_k, index_name,  records_with_embedding['vector_field'])
-
+    def delete_sample(self, index_name, doc_id):
+        return self.client.delete(index=index_name, id=doc_id)
 
     def search_sample_with_embedding(self, profile_name, top_k, index_name, query_embedding):
         search_query = {
-            "size": top_k,  # Adjust the size as needed to retrieve more or fewer results
+            "size": top_k,
             "query": {
                 "bool": {
-                    "filter": {
-                        "match_phrase": {
-                            "profile": profile_name
-                        }
-                    },
-                    "must": [
-                        {
-                            "knn": {
-                                "vector_field": {
-                                    # Make sure 'vector_field' is the name of your vector field in OpenSearch
-                                    "vector": query_embedding,
-                                    "k": top_k  # Adjust k as needed to retrieve more or fewer nearest neighbors
-                                }
+                    "filter": {"match_phrase": {"profile": profile_name}},
+                    "must": [{
+                        "knn": {
+                            "vector_field": {
+                                "vector": query_embedding,
+                                "k": top_k
                             }
                         }
-                    ]
+                    }]
                 }
-
             }
         }
-
-        # Execute the search query
-        response = self.opensearch_client.search(
-            body=search_query,
-            index=index_name
-        )
-
+        response = self.client.search(body=search_query, index=index_name)
         return response['hits']['hits']
+
+
+if __name__ == "__main__":
+    # 假设我们有以下的 OpenSearch 连接信息
+    opensearch_info = {
+        "username": "admin",
+        "password": "Test_admin_2024",
+        "host": "search-exercise-y6drxqainjxci3jwnxkvedmhue.us-east-1.es.amazonaws.com",
+        "port": 443,
+        "embedding_dimension": 256  # 假设嵌入维度为256
+    }
+
+    # 初始化 OpenSearch 索引
+    initializer = OpenSearchInitializer(opensearch_info)
+    if initializer.initialize_index():
+        logger.info("OpenSearch index initialized successfully.")
+    else:
+        logger.error("Failed to initialize OpenSearch index.")
+
+    # 使用 OpenSearchDao 进行数据操作
+    dao = OpenSearchDao(opensearch_info["host"], opensearch_info["port"], opensearch_info["username"], opensearch_info["password"])
+
+    # 添加样本
+    success = dao.add_sample("text_neptune", "profile1", "Sample text", "Sample answer", [0.1] * 128)
+    if success:
+        logger.info("Sample added successfully.")
+    else:
+        logger.error("Failed to add sample.")
+
+    # 检索样本
+    samples = dao.retrieve_samples("text_neptune", "profile1")
+    logger.info(f"Retrieved samples: {samples}")
+
+    # 删除样本
+    dao.delete_sample("text_neptune", "sample_doc_id")  # 替换为实际的文档 ID
+    logger.info("Sample deleted.")
