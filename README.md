@@ -4,20 +4,22 @@
 
 A  demo using Amazon Bedrock, Amazon OpenSearch, Amazon Neptune Graph Database with GraphRAG technique.
 
-[架构图]
+### 架构图
 
 
 
-[实现功能]
+### 实现功能
 
 
 
-[Demo展示] 
+### Demo展示 
 
-<video src='./assets/demo.mp4' controls width=180/>
+<video src='./assets/demo.mp4' controls width="180"></video>
+
+<br/>  <!-- 添加换行符以确保后续内容显示 -->
 
 
-[项目结构]
+### 项目结构
 ```
 aws-exercise-FundQA-based-GraphRA
 ├── Dockerfile 项目打包镜像脚本
