@@ -59,21 +59,19 @@ aws-exercise-FundQA-based-GraphRA
     └── pages_config.py
 ```
 
-
-
-
-
-[构建过程]
-
-
-
-[过程遇到难点及解决方式]
-
-
-
 ### TODO:
 
 1. 用无服务的架构- 升级ECS托管服务
 2. 前置加上ELB负载均衡,认证换成Cognito
 3. 密钥存储服务后续换成Amazon Secret Manager
 4. 尽量都选用Serverless的架构
+
+
+### 构建过程
+
+
+
+### 过程遇到难点及解决方式
+
+
+
