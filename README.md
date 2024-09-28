@@ -4,6 +4,9 @@
 
 A  demo using Amazon Bedrock, Amazon OpenSearch, Amazon Neptune Graph Database with GraphRAG technique.
 
+### 项目背景
+随着金融市场的快速发展，投资者对基金信息的查询需求日益增长。然而，传统的基金信息查询方式往往需要投资者花费大量时间和精力进行筛选和比较，导致投资效率低下。为了解决这一问题，本项目旨在实现一个基于图数据库和自然语言处理技术的基金信息查询系统，查询基金经理的基本信息和关联的基金信息帮助投资者快速获取基金相关信息，提高投资效率。 
+
 ### 架构介绍
 
 ![架构图](./assets/frame.png)
