@@ -12,10 +12,11 @@ A  demo using Amazon Bedrock, Amazon OpenSearch, Amazon Neptune Graph Database w
 ![架构图](./assets/frame.png)
 
 1. 用户通过streamlit进行身份验证(后续将换成AWS Cognito,同时增加弹性负载均衡Elastic Load Balancing进行负载均衡)。
-4. 经过身份验证的用户访问托管在 Amazon Elastic Compute Cloud(Amazon EC2) 上的前端服务。
-7. Embedding模块利用 Amazon OpenSearch 和来自 Amazon Bedrock (Titan) 的嵌入模型来处理和索引数据,以实现高效查询。
-8. 托管在 Amazon Bedrock (Llama)将自然语言文本转换为 OpenCypher 查询,使用户能够使用普通语言与数据库交互。
-9. 系统从 Amazon S3 和其他第三方集成等客户数据源中提取数据,并用对应的Neptune或OpenSearch进行存储,供给后续查询。
+2. 经过身份验证的用户访问托管在 Amazon Elastic Compute Cloud(Amazon EC2) 上的前端服务。
+3. Embedding模块利用 Amazon OpenSearch 和来自 Amazon Bedrock (Titan) 的嵌入模型来处理和索引数据,以实现高效查询。
+4. 托管在 Amazon Bedrock (Llama)将自然语言文本转换为 OpenCypher 查询,使用户能够使用普通语言与数据库交互。
+5. 通过Amazon Bedrock (Llama)将查询到的信息进行整理,并生成答案返回给用户。
+6. 方案基础数据来源则利用Amazon S3 和其他第三方集成等客户数据源中提取数据,并用对应的Neptune或OpenSearch进行存储,供给后续查询。
 
 ####  项目涉及云服务组件
 
